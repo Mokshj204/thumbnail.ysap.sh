@@ -67,7 +67,7 @@ ul {
 		box-sizing: border-box;
 	}
 
-	.font-label {
+	.input-label {
 		display: inline-block;
 		width: 100%;
 		text-align: left;
@@ -231,10 +231,6 @@ button {
     font-size: 10px;
 }
 
-.chevron {
-    font-size: 10px;
-}
-
 .dropdown-content {
     display: none;
     position: absolute;
@@ -247,7 +243,7 @@ button {
 }
 
 /* Show the dropdown menu (use JS to toggle) */
-.show {
+.dropdown-content.show {
     display: block;
 }
 
