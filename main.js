@@ -252,18 +252,17 @@ function toggleDropdown() {
 }
 
 // Close the dropdown if the user clicks outside of it
-window.onclick = function(event) {
+window.addEventListener('click', function(event) {
   if (!event.target.closest('.dropbtn')) {
-    var dropdowns = document.getElementsByClassName("dropdown-content");
-    var i;
-    for (i = 0; i < dropdowns.length; i++) {
-        var openDropdown = dropdowns[i];
+    const dropdowns = document.getElementsByClassName("dropdown-content");
+    for (let i = 0; i < dropdowns.length; i++) {
+        const openDropdown = dropdowns[i];
         if (openDropdown.classList.contains('show')) {
             openDropdown.classList.remove('show');
         }
     }
   }
-}
+});
 
 // allow user to press enter
 let urlInput = document.getElementById('url-input');
@@ -379,11 +378,17 @@ function downloadZip() {
     zip.generateAsync({type:"blob"})
     .then(function(content) {
         const link = document.createElement('a');
-        link.href = URL.createObjectURL(content);
+        const blobUrl = URL.createObjectURL(content);
+        link.href = blobUrl;
         link.download = `thumbnails-${lastVideoId}.zip`;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+        
+        // Revoke the object URL to avoid leaking memory on repeated downloads
+        setTimeout(function() {
+            URL.revokeObjectURL(blobUrl);
+        }, 100);
     });
 }
 
