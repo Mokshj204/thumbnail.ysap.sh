@@ -15,9 +15,6 @@
 		<meta charset="UTF-8">
 		<title>YouTube Social Image Generator</title>
 		<link rel="stylesheet" href="style.css?v=1">
-		<link rel="preconnect" href="https://fonts.googleapis.com">
-		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-		<link href="https://fonts.googleapis.com/css2?family=Fira+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 	</head>
 	<body>
 		<div id="container">
@@ -26,8 +23,14 @@
 			Input a YouTube URL and click <span class="highlight">Generate Images</span> to generate multiple images:
 			<br><br>
 			<input id="url-input" type="text" placeholder="Enter YouTube URL..." />
+			<br>
+			<label for="font-select" class="font-label">Font:</label>
+			<input id="font-select" type="text" list="font-options" placeholder="Choose a system font..." autocomplete="off" />
+			<datalist id="font-options"></datalist>
+			<br>
 			<button onclick="generate()">Generate Images</button>
 			<button onclick="downloadAll()" id="downloadBtn" style="display:none">Download All</button>
+			<div id="font-status" role="status" aria-live="polite"></div>
 
 			<div id="output"></div>
 			<br><br><br>
