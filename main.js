@@ -433,7 +433,24 @@ function drawFullImage(output, img, data, videoId) {
 
     // "Full Video on YouTube"
     const headline = 'Full Video on YouTube';
-    ctx.font = resolveCanvasFont(110);
+
+    // Dynamic font resizing:
+    // For wide fonts (like Arial Black), the text "Full Video on YouTube" at 110px
+    // can exceed the canvas width. We reduce the font size until it fits comfortably
+    // within the canvas (with some margin).
+    let fontSize = 110;
+    ctx.font = resolveCanvasFont(fontSize);
+    let textMetrics = ctx.measureText(headline);
+    const padding = 50;
+    // We want the total width (text + padding on both sides) to be less than canvas width - margin
+    const maxContentWidth = canvas.width - 100;
+
+    while ((textMetrics.width + padding * 2) > maxContentWidth && fontSize > 50) {
+        fontSize -= 5;
+        ctx.font = resolveCanvasFont(fontSize);
+        textMetrics = ctx.measureText(headline);
+    }
+
     ctx.fillStyle = "#eee";
     ctx.textAlign = "center";
     const x = canvas.width / 2;
@@ -441,10 +458,8 @@ function drawFullImage(output, img, data, videoId) {
     ctx.fillText(headline, x, y);
 
     // draw the red oval around it
-    const textMetrics = ctx.measureText(headline);
-    const padding = 50;
     const radiusX = textMetrics.width / 2 + padding;
-    const radiusY = 110;
+    const radiusY = fontSize; // scale height relative to font size
 
     ctx.strokeStyle = "#f00";
     ctx.lineWidth = 15;
@@ -491,7 +506,21 @@ function drawLargeImage(output, img, data, videoId) {
 
     // "Full Video on YouTube"
     const headline = 'Full Video on YouTube';
-    ctx.font = resolveCanvasFont(110);
+
+    // Dynamic font resizing:
+    // Ensure the text fits on the canvas even with wide fonts.
+    let fontSize = 110;
+    ctx.font = resolveCanvasFont(fontSize);
+    let textMetrics = ctx.measureText(headline);
+    const padding = 50;
+    const maxContentWidth = canvas.width - 100;
+
+    while ((textMetrics.width + padding * 2) > maxContentWidth && fontSize > 50) {
+        fontSize -= 5;
+        ctx.font = resolveCanvasFont(fontSize);
+        textMetrics = ctx.measureText(headline);
+    }
+
     ctx.fillStyle = "#eee";
     ctx.textAlign = "center";
     const x = canvas.width / 2;
@@ -499,10 +528,8 @@ function drawLargeImage(output, img, data, videoId) {
     ctx.fillText(headline, x, y);
 
     // draw the red oval around it
-    const textMetrics = ctx.measureText(headline);
-    const padding = 50;
     const radiusX = textMetrics.width / 2 + padding;
-    const radiusY = 110; // height of text + some padding
+    const radiusY = fontSize; // scale height relative to font size
 
     ctx.strokeStyle = "#f00";
     ctx.lineWidth = 15;
