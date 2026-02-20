@@ -22,14 +22,21 @@
 			<br>
 			Input a YouTube URL and click <span class="highlight">Generate Images</span> to generate multiple images:
 			<br><br>
-			<input id="url-input" type="text" placeholder="Enter YouTube URL..." />
-			<br>
-			<label for="font-select" class="font-label">Font:</label>
-			<input id="font-select" type="text" list="font-options" placeholder="Choose a system font..." autocomplete="off" />
-			<datalist id="font-options"></datalist>
-			<br>
-			<button onclick="generate()">Generate Images</button>
-			<button onclick="downloadAll()" id="downloadBtn" style="display:none">Download All</button>
+
+			<div class="row">
+				<label for="url-input" class="input-label">URL:</label>
+				<input id="url-input" type="text" placeholder="Enter YouTube URL..." />
+
+				<label for="font-select" class="input-label">Font:</label>
+				<input id="font-select" type="text" list="font-options" placeholder="Choose a system font..." autocomplete="off" />
+				<datalist id="font-options"></datalist>
+			</div>
+			
+			<div class="actions">
+				<button onclick="generate()">Generate Images</button>
+				<button onclick="downloadAll()" id="downloadBtn" style="display:none">Download All</button>
+			</div>
+
 			<div id="font-status" role="status" aria-live="polite"></div>
 
 			<div id="output"></div>
