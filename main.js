@@ -309,7 +309,9 @@ window.addEventListener('keydown', function(event) {
     
     // Arrow key navigation
     const openMenu = document.querySelector('.dropdown-content.show');
-    if (openMenu) {
+    
+    // Only intercept arrow keys if focusing the button or inside the menu
+    if (openMenu && active && (openMenu.contains(active) || active.closest('.dropbtn'))) {
          const items = Array.from(openMenu.querySelectorAll('a'));
          
          if (key === 'ArrowDown' || key === 'Down') {
