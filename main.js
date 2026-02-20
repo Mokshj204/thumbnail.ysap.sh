@@ -248,30 +248,113 @@ async function initFontPicker() {
 
 // toggle dropdown
 function toggleDropdown() {
-    document.getElementById("myDropdown").classList.toggle("show");
+    const dropdown = document.getElementById("myDropdown");
+    dropdown.classList.toggle("show");
+    
+    // Update ARIA state
+    const btn = document.querySelector('.dropbtn');
+    if (btn) {
+        const expanded = dropdown.classList.contains("show");
+        btn.setAttribute('aria-expanded', expanded);
+    }
 }
 
 // Close the dropdown if the user clicks outside of it
 window.addEventListener('click', function(event) {
-  if (!event.target.closest('.dropbtn')) {
-    const dropdowns = document.getElementsByClassName("dropdown-content");
-    for (let i = 0; i < dropdowns.length; i++) {
-        const openDropdown = dropdowns[i];
-        if (openDropdown.classList.contains('show')) {
-            openDropdown.classList.remove('show');
+    if (!event.target.closest('.dropbtn')) {
+        const dropdowns = Array.from(document.getElementsByClassName("dropdown-content"));
+        dropdowns.forEach((openDropdown) => {
+            if (openDropdown.classList.contains('show')) {
+                openDropdown.classList.remove('show');
+                // Reset ARIA state
+                const btn = document.querySelector('.dropbtn');
+                if (btn) btn.setAttribute('aria-expanded', 'false');
+            }
+        });
+    }
+});
+
+// Keyboard accessibility for dropdown
+window.addEventListener('keydown', function(event) {
+    const key = event.key;
+    const active = document.activeElement;
+    
+    // Close on Escape
+    if (key === 'Escape' || key === 'Esc') {
+        const dropdowns = Array.from(document.getElementsByClassName("dropdown-content"));
+        let closedSomething = false;
+        dropdowns.forEach((openDropdown) => {
+            if (openDropdown.classList.contains('show')) {
+                openDropdown.classList.remove('show');
+                openDropdown.previousElementSibling.setAttribute('aria-expanded', 'false');
+                closedSomething = true;
+            }
+        });
+        
+        if (closedSomething) {
+             const btn = document.querySelector('.dropbtn');
+             if (btn) btn.focus();
+        }
+        return;
+    }
+
+    // Toggle with Enter/Space on button
+    if (active && active.closest('.dropbtn')) {
+        if (key === 'Enter' || key === ' ' || key === 'Spacebar') {
+            event.preventDefault();
+            toggleDropdown();
+            return;
         }
     }
-  }
+    
+    // Arrow key navigation
+    const openMenu = document.querySelector('.dropdown-content.show');
+    if (openMenu) {
+         const items = Array.from(openMenu.querySelectorAll('a'));
+         
+         if (key === 'ArrowDown' || key === 'Down') {
+             event.preventDefault();
+             // Focus first, or next
+             if (!openMenu.contains(active)) {
+                 if (items.length > 0) items[0].focus();
+             } else {
+                 const index = items.indexOf(active);
+                 const nextIndex = (index + 1) % items.length;
+                 items[nextIndex].focus();
+             }
+         } else if (key === 'ArrowUp' || key === 'Up') {
+             event.preventDefault();
+             if (openMenu.contains(active)) {
+                 const index = items.indexOf(active);
+                 const prevIndex = (index - 1 + items.length) % items.length;
+                 items[prevIndex].focus();
+             }
+         }
+    } else if (active && active.closest('.dropbtn') && (key === 'ArrowDown' || key === 'Down')) {
+        // Allow opening with Down arrow if focused on button
+        event.preventDefault();
+        toggleDropdown();
+        // Focus first item if it opens
+        setTimeout(() => {
+             const dropdown = document.getElementById("myDropdown");
+             if (dropdown.classList.contains("show")) {
+                 const firstItem = dropdown.querySelector('a');
+                 if (firstItem) firstItem.focus();
+             }
+        }, 0);
+    }
 });
 
 // allow user to press enter
 let urlInput = document.getElementById('url-input');
-urlInput.addEventListener('keypress', function onevent(event) {
-    if (event.key === 'Enter') {
-        event.preventDefault();
-        generate();
-    }
-});
+if (urlInput) {
+    urlInput.addEventListener('keypress', function onevent(event) {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            generate();
+        }
+    });
+}
 
 initFontPicker();
 
@@ -338,10 +421,10 @@ function downloadAll() {
     let output = document.getElementById('output');
     Array.from(output.children).forEach(function (a, i) {
         setTimeout(function () {
-             // simulate clicking the link
-             console.log('clicking');
-             console.log(a);
-             a.click();
+            // simulate clicking the link
+            console.log('clicking');
+            console.log(a);
+            a.click();
         }, i * 300);
     });
 }
@@ -353,8 +436,10 @@ function downloadZip() {
         return;
     }
 
-    // Reuse lastVideoId check
-    if (!lastVideoId) return;
+    if (!lastVideoId) {
+        alert("No images are available to download. Please generate thumbnails first.");
+        return;
+    }
 
     const zip = new JSZip();
     const output = document.getElementById('output');
@@ -367,11 +452,11 @@ function downloadZip() {
         const filename = a.download || `image-${Math.random().toString(36).substring(7)}.jpg`;
 
         if (href.startsWith('data:image')) {
-             // Extract base64 part
-             const parts = href.split(',');
-             if (parts.length > 1) {
-                 zip.file(filename, parts[1], {base64: true});
-             }
+            // Extract base64 part
+            const parts = href.split(',');
+            if (parts.length > 1) {
+                zip.file(filename, parts[1], {base64: true});
+            }
         }
     });
 
@@ -389,6 +474,10 @@ function downloadZip() {
         setTimeout(function() {
             URL.revokeObjectURL(blobUrl);
         }, 100);
+    })
+    .catch(function(err) {
+        console.error('Error generating ZIP file:', err);
+        alert('There was an error generating the ZIP file. Please try again.');
     });
 }
 
@@ -517,6 +606,17 @@ function drawFullImage(output, img, data, videoId) {
         textMetrics = ctx.measureText(headline);
     }
 
+    // If we've reached the minimum font size and the text still doesn't fit,
+    // log a warning so this edge case is visible during development/usage.
+    if ((textMetrics.width + padding * 2) > maxContentWidth) {
+        console.warn('Headline text does not fit within canvas even at minimum font size', {
+            headline,
+            fontSize,
+            textWidth: textMetrics.width,
+            maxContentWidth
+        });
+    }
+
     ctx.fillStyle = "#eee";
     ctx.textAlign = "center";
     const x = canvas.width / 2;
@@ -585,6 +685,17 @@ function drawLargeImage(output, img, data, videoId) {
         fontSize -= 5;
         ctx.font = resolveCanvasFont(fontSize);
         textMetrics = ctx.measureText(headline);
+    }
+
+    // If we've reached the minimum font size and the text still doesn't fit,
+    // log a warning so this edge case is visible during development/usage.
+    if ((textMetrics.width + padding * 2) > maxContentWidth) {
+        console.warn('Headline text does not fit within canvas even at minimum font size', {
+            headline,
+            fontSize,
+            textWidth: textMetrics.width,
+            maxContentWidth
+        });
     }
 
     ctx.fillStyle = "#eee";
