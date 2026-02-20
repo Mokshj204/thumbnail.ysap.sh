@@ -246,6 +246,25 @@ async function initFontPicker() {
     applySelectedFont(savedFont);
 }
 
+// toggle dropdown
+function toggleDropdown() {
+    document.getElementById("myDropdown").classList.toggle("show");
+}
+
+// Close the dropdown if the user clicks outside of it
+window.onclick = function(event) {
+  if (!event.target.closest('.dropbtn')) {
+    var dropdowns = document.getElementsByClassName("dropdown-content");
+    var i;
+    for (i = 0; i < dropdowns.length; i++) {
+        var openDropdown = dropdowns[i];
+        if (openDropdown.classList.contains('show')) {
+            openDropdown.classList.remove('show');
+        }
+    }
+  }
+}
+
 // allow user to press enter
 let urlInput = document.getElementById('url-input');
 urlInput.addEventListener('keypress', function onevent(event) {
@@ -320,11 +339,51 @@ function downloadAll() {
     let output = document.getElementById('output');
     Array.from(output.children).forEach(function (a, i) {
         setTimeout(function () {
-            // simulate clicking the link
-            console.log('clicking');
-            console.log(a);
-            a.click();
-        }, i * 100);
+             // simulate clicking the link
+             console.log('clicking');
+             console.log(a);
+             a.click();
+        }, i * 300);
+    });
+}
+
+// download as zip
+function downloadZip() {
+    if (typeof JSZip === 'undefined') {
+        alert("JSZip library not loaded. Please wait and try again.");
+        return;
+    }
+
+    // Reuse lastVideoId check
+    if (!lastVideoId) return;
+
+    const zip = new JSZip();
+    const output = document.getElementById('output');
+    // Ensure we are selecting the 'a' tags inside output
+    const anchors = output.querySelectorAll('a');
+    
+    Array.from(anchors).forEach(function(a) {
+        const href = a.href;
+        // filename is set on the anchor element
+        const filename = a.download || `image-${Math.random().toString(36).substring(7)}.jpg`;
+
+        if (href.startsWith('data:image')) {
+             // Extract base64 part
+             const parts = href.split(',');
+             if (parts.length > 1) {
+                 zip.file(filename, parts[1], {base64: true});
+             }
+        }
+    });
+
+    zip.generateAsync({type:"blob"})
+    .then(function(content) {
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(content);
+        link.download = `thumbnails-${lastVideoId}.zip`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     });
 }
 
@@ -369,7 +428,9 @@ function process(data, videoId) {
         lastVideoId = videoId;
         drawImages(img, data, videoId);
 
-        document.getElementById('downloadBtn').style.display = 'inline-block';
+        // Show the dropdown instead of the old button
+        const dropdown = document.getElementById('downloadDropdown');
+        if (dropdown) dropdown.style.display = 'inline-block';
     };
 
     img.onerror = function onerror() {

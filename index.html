@@ -34,7 +34,16 @@
 			
 			<div class="actions">
 				<button onclick="generate()">Generate Images</button>
-				<button onclick="downloadAll()" id="downloadBtn" style="display:none">Download All</button>
+				<div class="dropdown-container" id="downloadDropdown" style="display:none">
+					<button class="dropbtn" onclick="toggleDropdown()">
+						<span>Download</span>
+						<span class="chevron">&#9660;</span>
+					</button>
+					<div id="myDropdown" class="dropdown-content">
+						<a href="#" onclick="downloadAll(); return false;">Individual Files</a>
+						<a href="#" onclick="downloadZip(); return false;">ZIP Archive</a>
+					</div>
+				</div>
 			</div>
 
 			<div id="font-status" role="status" aria-live="polite"></div>
@@ -58,6 +67,7 @@
                           </code></pre>
 		</div>
 
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 		<script src="main.js"></script>
 	</body>
 </html>
