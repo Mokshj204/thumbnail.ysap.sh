@@ -36,13 +36,13 @@
 			<div class="actions">
 				<button onclick="generate()">Generate Images</button>
 				<div class="dropdown-container" id="downloadDropdown" style="display:none">
-					<button class="dropbtn" onclick="toggleDropdown()">
+					<button class="dropbtn" onclick="toggleDropdown()" aria-haspopup="true" aria-expanded="false">
 						<span>Download</span>
 						<span class="chevron">&#9660;</span>
 					</button>
 					<div id="myDropdown" class="dropdown-content">
-						<a href="#" onclick="downloadAll(); return false;">Individual Files</a>
-						<a href="#" onclick="downloadZip(); return false;">ZIP Archive</a>
+						<a href="#" onclick="downloadAll(); toggleDropdown(); return false;">Individual Files</a>
+						<a href="#" onclick="downloadZip(); toggleDropdown(); return false;">ZIP Archive</a>
 					</div>
 				</div>
 			</div>
